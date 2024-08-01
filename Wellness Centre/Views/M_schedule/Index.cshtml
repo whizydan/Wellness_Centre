@@ -1,0 +1,79 @@
+﻿@{
+    Layout = "_Masseur";
+    ViewData["Title"] = "Schedule";
+    ViewData["page_title"] = "Schedule";
+    ViewData["schedule"] = "active";
+}
+
+<div id="dataTableBody" class="col-lg">
+
+</div>
+
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    const masseurId = getCookieValue("user", "id");
+
+    fetch(`http://localhost:8000/m_schedule/${masseurId}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+
+            const tableBody = document.getElementById('dataTableBody');
+
+            // Ensure that the table body exists before populating
+            if (tableBody) {
+                // Loop through the data and create table rows
+                data.reponse.forEach(appointment => {
+                    const row = `
+                                    <div class="row">
+        <div class="card">
+            <h6>${appointment.date} : ${appointment.time}</h6>
+            <div class="row card-body">
+                <div class="col">
+                    <img src="http:localhost:8000/${appointment.image || 'uploads\logo.png'}" class="w-25">
+                </div>
+                <div class="col">
+                    <ul>
+                        <li><h5>${appointment.name} : ${appointment.duration[0]} Hrs</h5></li>
+                        <li>BookingId: ${appointment.id[0]}</li>
+                    </ul>
+                </div>
+                <div class="col">
+                </div><div class="col">
+                </div>
+            </div>
+        </div>
+    </div>
+                            `;
+
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                console.error('Table body not found.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+
+</script>

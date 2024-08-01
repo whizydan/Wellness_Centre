@@ -1,0 +1,118 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Services";
+    ViewData["a_services"] = "active";
+    ViewData["page_title"] = "Add service";
+    ViewData["page"] = ViewData["title"];
+}
+
+<div class="card">
+    <div class="card-body">
+        <form id="editServiceForm" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label for="serviceName">Name</label>
+                        <input id="serviceName" name="name" type="text" class="form-control" required>
+                        <div class="invalid-feedback">Please enter a name.</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label for="serviceCategory">Category</label>
+                        <select id="serviceCategory" name="category" class="select form-control" required>
+                            <option value="Massage">Massage</option>
+                            <option value="Scrub">Scrub</option>
+                            <option value="Deep Tissue Massage">Deep Tissue Massage</option>
+                            <option value="Reflexology Massage">Reflexology Massage</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a category.</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label for="serviceDuration">Duration</label>
+                        <input id="serviceDuration" name="times" type="text" class="form-control" required>
+                        <div class="invalid-feedback">Please enter a duration.</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label for="servicePrice">Price</label>
+                        <input id="serviceprice" name="price" type="number" class="form-control" required>
+                        <div class="invalid-feedback">Please enter price.</div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="serviceDescription">Description</label>
+                        <textarea name="description" id="serviceDescription" class="form-control" required></textarea>
+                        <div class="invalid-feedback">Please enter a description.</div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="serviceImage">Product Image</label>
+                        <div class="image-upload">
+                            <input id="serviceImage" name="picture" type="file" class="form-control-file" required>
+                            <div class="image-uploads">
+                                <img src="assets/img/icons/upload.svg" alt="img">
+                                <h4>Drag and drop a file to upload</h4>
+                            </div>
+                            <div class="invalid-feedback">Please select an image.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <input type="submit" class="btn btn-submit me-2" value="Save" />
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const editServiceForm = document.getElementById('editServiceForm');
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation');
+
+        // Loop over them and prevent submission
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+
+                    form.classList.add('was-validated');
+                }, false);
+            });
+
+        editServiceForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Construct form data
+            const formData = new FormData(editServiceForm);
+
+            // Send POST request with form data
+            fetch('http://localhost:8000/a_add_service/', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data['reponse'] == "0") {
+                        Swal.fire("Service added");
+                    } else {
+                        Swal.fire(`Service could not be added: ${data['reponse']}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error submitting form data:', error);
+                });
+        });
+    });
+</script>

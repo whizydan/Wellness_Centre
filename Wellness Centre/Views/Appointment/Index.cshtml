@@ -1,0 +1,161 @@
+﻿@{
+    Layout = "_Customer";
+    ViewData["Title"] = "Services";
+    ViewData["page_title"] = "Booking Detail";
+    ViewData["services"] = "active";
+}
+
+
+<div class="col-md-9">
+    <div class="row">
+        <div class="card">
+            <div class="card-body">
+                <li>
+                    <ul id="dateVal"></ul>
+                    <ul id="serviceVal"></ul>
+                    <ul id="timeVal"></ul>
+                    <ul id="durationVal"></ul>
+                    <ul id="slotsVal">Slots available: 1 pax</ul>
+                </li>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <form method="post" id="form" novalidate>
+            <div class="form-group">
+                <label for="name">Username:</label>
+                <input id="username" required name="username" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="password">No. of pax:</label>
+                <input required max="8" name="pax" type="number" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="duration">Gender(eg 1 male , 1 female):</label>
+                <input required name="gender" type="text" class="form-control" id="duration">
+            </div>
+            <div class="form-group">
+                <label for="duration">Phone:</label>
+                <input required name="phone" type="tel" class="form-control" id="phone">
+            </div>
+
+            <div class="form-group">
+                <label for="duration">Email:</label>
+                <input id="email" required name="email" type="email" class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="duration">remark:</label>
+                <input name="remark" type="text" class="form-control">
+            </div>
+
+            <br>
+
+            <button type="submit" class="btn btn-outline-secondary">Book now</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function getParam(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+    
+    const username = getCookieValue('user','username');
+    const userId = getCookieValue('user','id');
+    document.getElementById('username').value = username;
+    document.getElementById('email').value=getCookieValue('user','email');
+    document.getElementById('phone').value = getCookieValue('user','phone');
+    const date = document.getElementById('dateVal');
+    const service = document.getElementById('serviceVal');
+    const timeVal = document.getElementById('timeVal')
+    const durationVal = document.getElementById('durationVal');
+    const slotsVal = document.getElementById('slotsVal');
+    const serviceId = getParam('id');
+
+    date.innerHTML = 'Date: ' + getParam('d');
+    timeVal.innerHTML = 'Time: ' + getParam('t');
+    durationVal.innerHtml = 'Duration: ' + getParam('du');
+
+    fetch(`http://localhost:8000/services/${serviceId}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            // Handle the JSON response here
+            const item = data['reponse'][0];
+            service.innerHTML = "Service: " + item.name;
+
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        // Use Bootstrap's native form validation
+        if (form.checkValidity() === false) {
+            event.stopPropagation(); // Stop event propagation if form is invalid
+        } else {
+            // Form is valid, proceed with sending data
+
+            // Construct the URL-encoded data string from form inputs
+            const formData = new FormData(form);
+            const urlEncodedData = new URLSearchParams(formData).toString();
+            const d = getParam('d');
+            const du = getParam('du');
+            const t = getParam('t');
+
+            fetch(`http://localhost:8000/booking/${serviceId}/${d}/${du}/${t}/${userId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: urlEncodedData
+            })
+                .then(response => {
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    if (data['reponse'] == "0") {
+                        Swal.fire('Booking has been made');
+                    } else {
+                        Swal.fire('Booking failed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle errors if any
+                });
+        }
+
+        form.classList.add('was-validated'); // Add Bootstrap's 'was-validated' class for visual feedback
+    });
+
+</script>

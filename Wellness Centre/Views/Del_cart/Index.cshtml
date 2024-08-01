@@ -1,0 +1,52 @@
+﻿@{
+    Layout = "_Customer";
+    ViewData["Title"] = "Customer";
+    ViewData["page_title"] = "Cart";
+}
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    function getParam(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    const userId = getCookieValue("user", "id");
+    const productId = getParam('id');
+
+    fetch(`http://localhost:8000/del_cart/${userId}/${productId}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+
+            if(data['reponse'] == "0"){
+                window.location.href = "/Cart";
+            }else{
+                Swal.fire("could not remove item from cart");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+</script>

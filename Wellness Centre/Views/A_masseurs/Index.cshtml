@@ -1,0 +1,47 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Masseurs";
+    ViewData["masseurs"] = "active";
+    ViewData["page_title"] = "Masseurs List";
+    ViewData["page"] = ViewData["title"];
+}
+
+<div class="row" id="masseursList">
+    <!-- Masseurs data will be dynamically loaded here -->
+   
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const masseursList = document.getElementById('masseursList');
+
+        fetch('http://localhost:8000/a_masseur', {
+            method: 'GET'
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                data['reponse'].forEach(masseur => {
+                    const card = document.createElement('div');
+                    card.classList.add('col-lg-3', 'col-sm-6', 'col-12');
+                    card.innerHTML = `
+                            <div class="card text-center" style="width: 18rem;">
+                                    <img src="http://localhost:8000/${masseur.photo || 'uploads/logo.png'}" class="card-img-top" alt="...">
+                                <div class="card-body">
+                                    <h5 class="card-title">${masseur.username}</h5>
+                                    <p>Contact: ${masseur.email}</p>
+                                    <a href="/A_edit_masseur?id=${masseur.id}" class="btn btn-outline-primary">Edit</a>
+                                    <a href="/A_delete_masseur?id=${masseur.id}" class="btn btn-outline-danger">Delete</a>
+                                </div>
+                            </div>
+                        `;
+                    masseursList.appendChild(card);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching masseurs data:', error);
+            });
+    });
+</script>
+
+

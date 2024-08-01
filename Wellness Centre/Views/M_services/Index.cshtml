@@ -1,0 +1,97 @@
+﻿@{
+    Layout = "_Masseur";
+    ViewData["Title"] = "Services";
+    ViewData["page_title"] = "Services List";
+    ViewData["services"] = "active";
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-top">
+            <div class="search-set">
+                <div hidden class="search-input">
+                    <a class="btn btn-searchset"><img src="assets/img/icons/search-white.svg" alt="img"></a>
+                    <div id="DataTables_Table_0_filter" class="dataTables_filter"><label> <input type="search" class="form-control form-control-sm" placeholder="Search..." aria-controls="DataTables_Table_0"></label></div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <div>
+                <table class="table">
+                    <thead>
+                        <trrole="row">
+                            <th></th>
+                            <th>Service</th>
+                            <th>ID</th>
+                            <th>Commision (40%) or total charge</th>
+                            <th>Date </th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    const masseurId = getCookieValue("user", "id");
+
+    fetch(`http://localhost:8000/m_services/${masseurId}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+
+            const tableBody = document.getElementById('dataTableBody');
+
+            // Ensure that the table body exists before populating
+            if (tableBody) {
+                // Loop through the data and create table rows
+                data.reponse.forEach(appointment => {
+                    const row = `
+                            <tr>
+                                <td class="productimgname">
+                                    <a href="javascript:void(0);" class="product-img">
+                                        <img height="100" width="100" src="http://localhost:8000/${appointment.image || 'uploads/logo.png'}" alt="product">
+                                    </a>
+                                </td>
+                                    <td><a href="javascript:void(0);">${appointment.name}</a></td>
+                                <td>${appointment.id[0]}</td>
+                                <td>RM ${appointment.price * 0.4}</td>
+                                <td>${appointment.date} : ${appointment.time}</td>
+                            </tr>
+                        `;
+
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                console.error('Table body not found.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+
+</script>

@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Services";
+    ViewData["page_title"] = "Services List";
+}
+<script>
+    function getParam(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    const userId = getParam('id');
+
+    fetch(`http://localhost:8000/a_delete_service/${userId}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+
+            if(data['reponse'] == "0"){
+                window.location.href = "/A_services";
+            }else{
+                Swal.fire("could not delete service");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+</script>

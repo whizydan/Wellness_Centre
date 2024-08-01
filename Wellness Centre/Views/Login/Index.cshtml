@@ -1,0 +1,105 @@
+﻿@{
+    Layout = "_Blank";
+    ViewData["Title"] = "Login";
+}
+<form id="loginForm" enctype="application/x-www-form-urlencoded" method="post" class="needs-validation" novalidate>
+    <div class="account-content">
+        <div class="login-wrapper">
+            <div class="login-content">
+                <div class="login-userset">
+                    <div class="login-logo">
+                        <img src="assets/img/logo.png" alt="img">
+                    </div>
+                    <div class="login-userheading">
+                        <h3>Sign In</h3>
+                        <h4>Please login to your account</h4>
+                    </div>
+                    <div class="form-login">
+                        <label for="username">Username</label>
+                        <div class="form-addons">
+                            <input required type="text" id="username" name="username" class="form-control" placeholder="Username">
+                            <img src="assets/img/icons/mail.svg" alt="img">
+                            <div class="invalid-feedback">Please enter your username.</div>
+                        </div>
+                    </div>
+                    <div class="form-login">
+                        <label for="password">Password</label>
+                        <div class="pass-group">
+                            <input required type="password" id="password" name="password" class="form-control" placeholder="Enter your password">
+                            <span class="fas toggle-password fa-eye-slash"></span>
+                            <div class="invalid-feedback">Please enter your password.</div>
+                        </div>
+                    </div>
+                    <div class="form-login">
+                        <button type="submit" class="btn btn-login">Sign In</button>
+                    </div>
+                    <div class="signinform text-center">
+                        <h4>Don’t have an account? <a href="/Register" class="hover-a">Sign Up</a></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="login-img">
+                <img src="assets/img/login.jpeg" alt="img">
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Enable Bootstrap's form validation
+    (function () {
+        'use strict';
+
+        // Fetch the form by ID
+        var form = document.getElementById('loginForm');
+
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                event.preventDefault(); // Prevent default form submission
+
+                // Get form data
+                var formData = new FormData(form);
+
+                // Make an AJAX request
+                fetch('http://localhost:8000/login', {
+                    method: 'POST',
+                    body: new URLSearchParams(new FormData(form))
+                })
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        if (data['reponse'] == "2") {
+                            Swal.fire("username is empty");
+                        } else if (data['reponse'] == "0") {
+                            Swal.fire("No such user")
+                        } else if (data['reponse'] == "1") {
+                            Swal.fire("Wrong password");
+                        } else if (data["dob"] !== null) {
+                            document.cookie = `user=${JSON.stringify(data['reponse'])}; expires=Thu, 01 Jan 2026 00:00:00 UTC; path=/`;
+                            if (data['reponse']['role'] == '0') {
+                                window.location.href = '/A_services';
+                            } else if (data['reponse']['role'] == '1') {
+                                window.location.href = "/M_services";
+                            } else if (data['reponse']['role'] == '2') {
+                                window.location.href = "/Services"
+                            } else {
+                                Swal.fire(`Unknown user type: ${data['reponse']['role']}`);
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Handle errors if any
+                    });
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+    })();
+</script>
+

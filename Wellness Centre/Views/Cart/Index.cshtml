@@ -1,0 +1,99 @@
+﻿@{
+    Layout = "_Customer";
+    ViewData["Title"] = "Cart";
+    ViewData["page_title"] = "Cart";
+}
+
+<style>
+    .card-img-top {
+        height: 200px; /* Adjust the height as needed */
+        object-fit: cover; /* Ensure the image covers the entire area */
+    }
+</style>
+
+<div class="col" id="servicesRow"></div>
+
+<div class="text-end">
+    <div id="total"></div>
+    <br>
+    <a href="/Checkout"><input type="submit" value="Checkout" class="btn btn-outline-secondary"></a>
+</div>
+
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    const id = getCookieValue('user','id');
+    const totalText = document.getElementById('total');
+    fetch(`http://localhost:8000/cart/${id}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            var totalValue = 0;
+
+            const servicesRow = document.getElementById('servicesRow');
+
+            // Loop through the data and create card elements
+            data.reponse.forEach(service => {
+                const cardDiv = document.createElement('div');
+                cardDiv.classList.add('row');
+                const serviceDescription = `${service.description}`; // Convert to string if not already
+                const truncatedDescription = serviceDescription.length > 100 ? serviceDescription.substring(0, 100) + '...' : serviceDescription;
+                const thisPrice = parseInt(service.price[1]) * parseInt(service.qty);
+                totalValue = totalValue + thisPrice;
+                const card = `<div class="card">
+            <div class="row card-body">
+                <div class="col">
+                    <img src="http://localhost:8000/${service.image}" class="w-25">
+                </div>
+                <div class="col">
+                    <ul>
+                        <li><h5>${service.name}</h5></li>
+                            <li class="btn btn-outline-secondary">Quantity: ${service.qty}</li>
+                        <li>
+                            <div class="row">
+                                <div class="col">
+                                        <p class="d-inline"><h6>RM ${service.price[0]}</h6></p>
+                                </div>
+                                <div class="col">
+                                        <a href="/Del_cart?id=${service.id[0]}"><i class="fa fa-trash"></i></a>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col">
+                </div><div class="col">
+                    
+                </div>
+            </div>
+        </div>
+                                `;
+
+                cardDiv.innerHTML = card;
+                servicesRow.appendChild(cardDiv);
+            });
+            totalText.innerHTML = "Total: RM " + totalValue;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+</script>

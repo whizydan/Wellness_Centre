@@ -1,0 +1,64 @@
+﻿@{
+    Layout = "_Customer";
+    ViewData["Title"] = "History";
+    ViewData["page_title"] = "History";
+}
+<style>
+    .card-img-top {
+        height: 200px; /* Adjust the height as needed */
+        object-fit: cover; /* Ensure the image covers the entire area */
+    }
+</style>
+<div id="cardContainer" class="row"></div>
+
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    const id = getCookieValue('user','id');
+    fetch(`http://localhost:8000/history/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            const cardContainer = document.getElementById('cardContainer');
+
+            // Check if 'response' exists in the JSON data and is an array
+            if (data.hasOwnProperty('reponse') && Array.isArray(data.reponse)) {
+                data.reponse.forEach(item => {
+                    // Create a card div for each item in the array
+                    const cardDiv = document.createElement('div');
+                    cardDiv.classList.add('col-lg-3', 'col-sm-6', 'col-12');
+
+                    cardDiv.innerHTML = `
+                        <div class="card text-center" style="width: 18rem;">
+                            <img src="http://localhost:8000/${item.image}" class="card-img-top" alt="...">
+                            <div class="card-body">
+                                <h5 class="card-title">${item.name}</h5>
+                            </div>
+                        </div>
+                    `;
+
+                    // Append the card to the container
+                    cardContainer.appendChild(cardDiv);
+                });
+            } else {
+                console.error('Invalid JSON format: Missing or invalid "response" array.');
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            // Handle errors if any
+        });
+</script>

@@ -1,0 +1,175 @@
+﻿@{
+    Layout = "_Blank";
+    ViewData["Title"] = "Profile";
+}
+
+<br /><br />
+<div class="row card-body">
+    <div class="col-md-3">
+        <a id="back"><button class="btn btn-primary">Back</button></a>
+    </div>
+
+    <div class="col-lg">
+        <div class="card">
+            <div class="card-body">
+                <form id="form" action="http://localhost:8000/profile" enctype="multipart/form-data" method="post" novalidate>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input id="username" type="text" class="form-control" required name="username">
+                                <div class="invalid-feedback">Please enter your username.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Date of birth</label>
+                                <input id="dob" type="date" class="form-control" required name="dob">
+                                <div class="invalid-feedback">Please enter your date of birth.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <div class="form-group">
+                                    <label for="duration">Gender:</label>
+                                    <select id="gender" required class="select form-control" name="gender">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Phone number</label>
+                                <input id="phone" type="number" class="form-control" required name="phone">
+                                <div class="invalid-feedback">Please enter phone number.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Email</label>
+                                <input id="email" type="email" class="form-control" required name="email">
+                                <div class="invalid-feedback">Please enter email</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Address</label>
+                                <input id="address" type="text" class="form-control" required name="address">
+                                <div class="invalid-feedback">Please enter shipping address.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input id="password" type="password" class="form-control" required name="password">
+                                <div class="invalid-feedback">Please enter your password.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Confirm Password</label>
+                                <input id="cPassword" type="password" class="form-control" required name="cPassword">
+                                <div class="invalid-feedback">Your passwords have to match</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <button id="submit" type="submit" class="btn btn-outline-primary">Save changes</button>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="row">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <img id="image" name="picture" height="450" width="450">
+                                    </div>
+                                    <div class="card-footer">
+                                        <input class="form-control" name="picture" type="file">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        
+    </div>
+</div>
+
+<script>
+    function getLogin(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    const username = document.getElementById('username');
+    const dob = document.getElementById('dob');
+    const gender = document.getElementById('gender');
+    const phone = document.getElementById('phone');
+    const email = document.getElementById('email');
+    const address = document.getElementById('address');
+    const password = document.getElementById('password');
+    const back = document.getElementById('back');
+    const role = getLogin('user', 'role');
+    const image = document.getElementById('image');
+    
+    username.value = getLogin('user','username');
+    dob.value = getLogin('user', 'dob');
+    if (getLogin('user', 'gender') == "Female"){
+        gender.value = 'Female';
+    }
+    phone.value = getLogin('user', 'phone');
+    email.value = getLogin('user', 'email');
+    address.value = getLogin('user', 'address');
+    password.value = getLogin('user', 'password');
+    if (getLogin('user', 'photo') != "") {
+        image.src = "http://localhost:8000/" + getLogin('user','photo');
+    }
+
+    if (role == "0") {
+        back.href = "/A_services";
+    }
+    else if (role == "1") {
+        back.href = "/M_services";
+                }
+    else if (role == "2") {
+        back.href = "/Services";
+    }
+
+    const form = document.getElementById('form');
+    form.addEventListener('submit', async function (event) {
+        event.preventDefault(); // Prevent default form submission
+
+        if (form.checkValidity()) { // Check if form is valid
+            const formData = new URLSearchParams(new FormData(form)); // Convert form data to URL-encoded format
+            try {
+                const response = await fetch(`http://localhost:8000/profile/${getLogin('user','id')}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json(); // Parse JSON response
+                console.log(data); // Handle JSON response data
+                if (data['reponse'] == "1") {
+                    Swal.fire('Profile updated');
+                } else {
+                    Swal.fire('Could not update profile!\nTry again later.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        } else {
+            event.stopPropagation(); // Stop propagation of the submit event if form is invalid
+            form.classList.add('was-validated');
+        }
+
+    });
+</script>

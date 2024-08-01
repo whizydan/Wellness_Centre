@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Masseurs";
+    ViewData["page_title"] = "Masseur List";
+}
+<script>
+    function getParam(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+
+    const userId = getParam('id');
+
+    fetch(`http://localhost:8000/a_delete_masseur/${userId}`, {
+        method: 'DELETE'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+
+            if(data['reponse'] == "0"){
+                window.location.href = "/A_masseurs";
+            }else{
+                Swal.fire("could not delete masseur");
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+</script>

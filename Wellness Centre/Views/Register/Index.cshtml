@@ -1,0 +1,146 @@
+﻿@{
+    Layout = "_Blank";
+    ViewData["Title"] = "Register";
+}
+<form id="registerForm" enctype="application/x-www-form-urlencoded" novalidate>
+    <div class="account-content">
+        <div class="login-wrapper">
+            <div class="login-content">
+                <div class="login-userset">
+                    <div class="login-logo">
+                        <img src="assets/img/logo.png" alt="img">
+                    </div>
+                    <div class="login-userheading">
+                        <h3>Sign Up</h3>
+                        <h4>Create an account to continue</h4>
+                    </div>
+                    <div class="form-login">
+                        <label>Username</label>
+                        <div class="form-addons">
+                            <input name="username" required type="text" placeholder="Username">
+                        </div>
+                    </div>
+                    <div class="form-login">
+                        <label>date of Birth</label>
+                        <div class="form-addons">
+                            <input name="dob" required type="date" placeholder="date of birth">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Gender</label>
+                        <select required name="gender" class="select">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="form-login">
+                        <label>Phone Number</label>
+                        <div class="form-addons">
+                            <input name="phone" required type="tel" placeholder="phone number">
+                        </div>
+                    </div>
+                    <div class="form-login">
+                        <label>Address</label>
+                        <div class="form-addons">
+                            <input name="address" required type="text" placeholder="Address">
+                        </div>
+                    </div>
+                    <div class="form-login">
+                        <label>Email</label>
+                        <div class="form-addons">
+                            <input name="email" required type="email" placeholder="Email">
+                            <img src="assets/img/icons/mail.svg" alt="img">
+                        </div>
+                    </div>
+                    <div class="form-login">
+                        <label>Password</label>
+                        <div class="pass-group">
+                            <input name="password" required type="password" class="pass-input" placeholder="Enter your password">
+                            <span class="fas toggle-password fa-eye-slash"></span>
+                        </div>
+                    </div>
+                    <div class="form-login">
+                        <input type="submit" class="btn btn-login" value="Sign Up">
+                    </div>
+                    <div class="signinform text-center">
+                        <h4>Already have an account? <a href="/Login" class="hover-a">Sign In</a></h4>
+                    </div>
+                </div>
+            </div>
+            <div class="login-img">
+                <img src="assets/img/Register.jpeg" alt="img">
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Enable Bootstrap's form validation
+    (function () {
+        'use strict';
+
+        // Fetch the form by ID
+        var form = document.getElementById('registerForm');
+
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            } else {
+                event.preventDefault(); // Prevent default form submission
+
+                // Get form data
+                var formData = new FormData(form);
+
+                // Make an AJAX request
+                fetch('http://localhost:8000/register', {
+                    method: 'POST',
+                    body: new URLSearchParams(new FormData(form))
+                })
+                    .then(response => {
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        if (data['reponse'] == "0") {
+                            goLogin();
+                        } else {
+                            Swal.fire("An errro has occured please try again later!");
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        // Handle errors if any
+                    });
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+    })();
+
+    function goLogin() {
+        let timerInterval;
+        Swal.fire({
+            title: "Registration succesfull!",
+            html: "<div class='alert alert-success' role='alert>You will now be redirected to the Login page</div>",
+            timer: 2000,
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+                const timer = Swal.getPopup().querySelector("b");
+                timerInterval = setInterval(() => {
+                    timer.textContent = `${Swal.getTimerLeft()}`;
+                }, 100);
+            },
+            willClose: () => {
+                clearInterval(timerInterval);
+            }
+        }).then((result) => {
+            /* Read more about handling dismissals below */
+            if (result.dismiss === Swal.DismissReason.timer) {
+                console.log("I was closed by the timer");
+                window.location.href = "/Login";
+            }
+        });
+    }
+</script>

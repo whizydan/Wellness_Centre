@@ -1,0 +1,174 @@
+﻿@{
+    Layout = "_Masseur";
+    ViewData["Title"] = "Masseurs";
+    ViewData["page_title"] = "My profile";
+}
+
+<div class="card">
+    <div class="card-body">
+        <form id="myForm" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input id="username" type="text" class="form-control" required name="username">
+                        <div class="invalid-feedback">Please enter your username.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Employee ID</label>
+                        <input readonly id="empId" type="text" class="form-control">
+                        <div class="invalid-feedback">Please enter your username.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Date of birth</label>
+                        <input id="dob" type="date" class="form-control" required name="dob">
+                        <div class="invalid-feedback">Please enter your date of birth.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-group">
+                            <label for="duration">Gender:</label>
+                            <select id="gender" required class="select form-control" name="gender">
+                                <option id="male" value="Male">Male</option>
+                                <option id="female" value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Phone number</label>
+                        <input id="phone" type="number" class="form-control" required name="phone">
+                        <div class="invalid-feedback">Please enter phone number.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Email</label>
+                        <input id="email" type="email" class="form-control" required name="email">
+                        <div class="invalid-feedback">Please enter email</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Address</label>
+                        <input id="address" type="text" class="form-control" required name="address">
+                        <div class="invalid-feedback">Please enter shipping address.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input id="password" type="password" class="form-control" required name="password">
+                        <div class="invalid-feedback">Please enter your password.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Confirm Password</label>
+                        <input id="cPassword" type="password" class="form-control" required name="cPassword">
+                        <div class="invalid-feedback">Your passwords have to match</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <button id="submit" type="submit" class="btn btn-outline-primary">Save changes</button>
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <img id="profileImage" height="450" width="450">
+                            </div>
+                            <div class="card-footer">
+                                <input class="form-control" name="picture" type="file">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    const masseurId = getCookieValue('user', 'id');
+    const profileImage = document.getElementById('profileImage');
+    const username = document.getElementById('username');
+    const dob = document.getElementById('dob');
+    const gender = document.getElementById('gender');
+    const phone = document.getElementById('phone');
+    const email = document.getElementById('email');
+    const address = document.getElementById('address');
+    const password = document.getElementById('password');
+    const cPassword = document.getElementById('cPassword');
+    const empId = document.getElementById('empId');
+
+    username.value = getCookieValue("user",'username');
+    dob.value = getCookieValue("user", 'dob');
+    if (getCookieValue("user", 'gender') == "Female") {
+        gender.value = "Female";
+    }
+    phone.value = getCookieValue("user", 'phone');
+    email.value = getCookieValue("user", 'email');
+    address.value = getCookieValue("user", 'address');
+    password.value = getCookieValue("user", 'password');
+    cPassword.value = getCookieValue("user", 'cPassword');
+    empId.value = getCookieValue('user', 'empid');
+    if (getCookieValue("user", 'photo') == "") {
+        profileImage.src = 'http://localhost:8000/uploads/default.svg';
+    } else {
+        profileImage.src = 'http://localhost:8000/' + getCookieValue("user", 'photo');
+    }
+    
+    const form = document.getElementById('myForm');
+
+    form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        form.classList.add('was-validated');
+    });
+
+    // Function to submit form data using fetch API
+    function submitFormData(formData) {
+        fetch(`http://localhost:8000/m_profile/${masseurId}`, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data['reponse'] == "1"){
+                    Swal.fire('Profile updated\n Successfully!😊');
+                }else{
+                    Swal.fire('Could not update profile');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Event listener for form submission
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (form.checkValidity()) {
+            const formData = new FormData(form);
+            submitFormData(formData);
+        }
+    });
+</script>

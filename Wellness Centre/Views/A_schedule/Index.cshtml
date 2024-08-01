@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Schedule";
+    ViewData["schedule"] = "active";
+    ViewData["page_title"] = "Schedule";
+    ViewData["page"] = ViewData["title"];
+}
+
+<div class="card">
+    <div class="card-body">
+        <div class="table-top">
+            <div class="search-set">
+                <div class="search-input">
+                    <a class="btn btn-searchset"><img src="assets/img/icons/search-white.svg" alt="img"></a>
+                    <div id="DataTables_Table_0_filter" class="dataTables_filter"><label> <input type="search" class="form-control form-control-sm" placeholder="Search..." aria-controls="DataTables_Table_0"></label></div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <div id="DataTables_Table_0_wrapper" class="dataTables_wrapper dt-bootstrap4 no-footer">
+                <table class="table datanew dataTable no-footer" id="DataTables_Table_0" role="grid" aria-describedby="DataTables_Table_0_info">
+                    <thead>
+                        <tr role="row">
+                            <th class="sorting_asc" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-sort="ascending" aria-label=": activate to sort column descending" style="width: 39.4844px;">
+                                <label class="checkboxs">
+                                    <input type="checkbox" id="select-all">
+                                    <span class="checkmarks"></span>
+                                </label>
+                            </th>
+                            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Service Name: activate to sort column ascending" style="width: 155.594px;">Service name</th>
+                            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="SKU: activate to sort column ascending" style="width: 33.7188px;">Date</th>
+                            <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Category : activate to sort column ascending" style="width: 66.7031px;">Time </th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                    </tbody>
+                </table><div class="dataTables_length" id="DataTables_Table_0_length"><label><select name="DataTables_Table_0_length" aria-controls="DataTables_Table_0" class="custom-select custom-select-sm form-control form-control-sm"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label></div><div class="dataTables_paginate paging_numbers" id="DataTables_Table_0_paginate"><ul class="pagination"><li class="paginate_button page-item active"><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="0" tabindex="0" class="page-link">1</a></li><li class="paginate_button page-item "><a href="#" aria-controls="DataTables_Table_0" data-dt-idx="1" tabindex="0" class="page-link">2</a></li></ul></div><div class="dataTables_info" id="DataTables_Table_0_info" role="status" aria-live="polite">1 - 10 of 11 items</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    fetch('http://localhost:8000/a_schedule', {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+
+            const tableBody = document.getElementById('dataTableBody');
+
+            // Ensure that the table body exists before populating
+            if (tableBody) {
+                // Loop through the data and create table rows
+                data.reponse.forEach(appointment => {
+                    const row = `
+                        <tr>
+                            <td>
+                                <label class="checkboxs">
+                                    <input type="checkbox">
+                                    <span class="checkmarks"></span>
+                                </label>
+                            </td>
+                            <td class="productimgname">
+                                <a href="javascript:void(0);" class="product-img">
+                                    <img src="http://localhost:8000/${appointment.image || 'uploads/logo.png'}" alt="product">
+                                </a>
+                                <a href="javascript:void(0);">${appointment.name}</a>
+                            </td>
+                            <td>${appointment.date}</td>
+                            <td>${appointment.time}</td>
+                        </tr>
+                    `;
+
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                console.error('Table body not found.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+
+</script>

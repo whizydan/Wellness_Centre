@@ -1,0 +1,153 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Masseurs";
+    ViewData["e_masseur"] = "active";
+    ViewData["page_title"] = "Edit Masseur";
+    ViewData["page"] = ViewData["title"];
+}
+
+<div class="card">
+    <div class="card-body">
+        <form id="editMasseurForm" enctype="application/x-www-form-urlencoded" class="needs-validation" novalidate method="post">
+            <div class="row">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group has-validation">
+                        <label>Employee ID</label>
+                        <input required name="empId" type="text" class="form-control">
+                        <div class="invalid-feedback">Please provide an employee ID.</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group has-validation">
+                        <label>Full Name</label>
+                        <input required name="name" type="text" class="form-control">
+                        <div class="invalid-feedback">Please provide a full name.</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group has-validation">
+                        <label>Phone Number</label>
+                        <input required name="phone" type="text" class="form-control">
+                        <div class="invalid-feedback">Please provide a phone number.</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group has-validation">
+                        <label>Password</label>
+                        <div class="pass-group">
+                            <input required name="password" type="password" class="form-control pass-input">
+                            <span class="fas toggle-password fa-eye-slash"></span>
+                            <div class="invalid-feedback">Please provide a password.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group has-validation">
+                        <label>Address</label>
+                        <input required name="address" type="text" class="form-control">
+                        <div class="invalid-feedback">Please provide an address.</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group has-validation">
+                        <label>Date of Birth</label>
+                        <div class="input-groupicon">
+                            <input required name="dob" type="text" placeholder="DD-MM-YYYY" class="form-control datetimepicker">
+                            <div class="addonset">
+                                <img src="assets/img/icons/calendars.svg" alt="img">
+                            </div>
+                            <div class="invalid-feedback">Please provide a valid date of birth.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group has-validation">
+                        <label>Email</label>
+                        <input required name="email" type="text" class="form-control">
+                        <div class="invalid-feedback">Please provide a valid email.</div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group has-validation">
+                        <label>Gender</label>
+                        <select name="gender" required class="form-select">
+                            <option selected value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <div class="invalid-feedback">Please select a gender.</div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <button type="submit" class="btn btn-primary me-2">save Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const editMasseurForm = document.getElementById('editMasseurForm');
+        const empIdField = document.getElementById('empId');
+
+        // Function to extract ID from URL
+        const getUrlParameter = (name) => {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get(name);
+        };
+
+        // Get the ID from the URL
+        const masseurId = getUrlParameter('id');
+
+        // Fetch data for the specified masseur ID
+        fetch(`http://localhost:8000/a_edit_masseur/${masseurId}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                const masseurData = data.reponse[0]; // Assuming there's only one masseur data in the response array
+                // Prefill the form fields
+                document.querySelector('input[name="empId"]').value = masseurData.empId;
+                document.querySelector('input[name="name"]').value = masseurData.username;
+                document.querySelector('input[name="phone"]').value = masseurData.phone;
+                document.querySelector('input[name="password"]').value = masseurData.password;
+                document.querySelector('input[name="address"]').value = masseurData.address;
+                document.querySelector('input[name="dob"]').value = masseurData.dob;
+                document.querySelector('input[name="email"]').value = masseurData.email;
+                document.querySelector('select[name="gender"]').value = masseurData.gender;
+            })
+            .catch(error => console.error('Error fetching data:', error));
+
+        // Add event listener for form submission
+        editMasseurForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Validation code
+
+            if (editMasseurForm.checkValidity()) {
+                const formData = new URLSearchParams(new FormData(editMasseurForm)); // Using URLSearchParams for URL-encoded form data
+                const urlParams = new URLSearchParams(window.location.search);
+                const masseurId = urlParams.get('id');
+                try {
+                    const response = await fetch(`http://localhost:8000/A_edit_masseur/${masseurId}`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data['reponse'] == '0') {
+                        Swal.fire('Masseur updated successfully.');
+                    } else {
+                        Swal.fire(`Could not update masseur: ${data['reponse']}`);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }
+
+            editMasseurForm.classList.add('was-validated');
+        });
+    });
+
+</script>

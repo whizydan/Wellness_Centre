@@ -1,0 +1,98 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Masseurs";
+    ViewData["page_title"] = "Masseurs List";
+    ViewData["customers"] = "active";
+}
+
+<style>
+    .card-img-top {
+        height: 200px; /* Adjust the height as needed */
+        object-fit: cover; /* Ensure the image covers the entire area */
+    }
+</style>
+
+<div class="card">
+    <div class="row text-center card-body">
+        <div class="col-md-3">
+            <img id="image" src="/images/logo.png" class="card-img-top">
+        </div>
+        <div class="col-md-9">
+            <p id="customer-id"></p>
+            <p id="username"></p>
+            <p id="dob"></p>
+            <p id="gender"></p>
+            <p id="phone"></p>
+            <p id="email"></p>
+        </div>
+    </div>
+
+    <div id="servicesRow" class="row card-body">
+        <h3>Purchasing History</h3>
+    </div>
+</div>
+
+
+<script>
+    // Get the id from the page URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    // Make a fetch request to localhost:8000/a_customer_detail/id
+    fetch(`http://localhost:8000/a_customer_details/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            const customer = data.reponse[0];
+            document.getElementById('customer-id').innerText = `Customer id: ${customer.id}`;
+            document.getElementById('username').innerText = `Username: ${customer.username}`;
+            document.getElementById('dob').innerText = `Date of birth: ${customer.dob}`;
+            document.getElementById('gender').innerText = `Gender: ${customer.gender}`;
+            document.getElementById('phone').innerText = `Phone no: ${customer.phone}`;
+            document.getElementById('email').innerText = `Email address: ${customer.email}`;
+            document.getElementById('image').src = `http://localhost:8000/${customer.photo}`;
+        })
+        .catch(error => console.error('Error:', error));
+
+    fetch(`http://localhost:8000/a_customer_details/${id}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+
+            const servicesRow = document.getElementById('servicesRow');
+
+            // Loop through the data and create card elements
+            data.history.forEach(service => {
+                const cardDiv = document.createElement('div');
+                cardDiv.classList.add('col-lg-3', 'col-sm-6', 'col-12');
+                const serviceDescription = `${service.description}`; // Convert to string if not already
+                const truncatedDescription = serviceDescription.length > 100 ? serviceDescription.substring(0, 100) + '...' : serviceDescription;
+
+                const card = `
+                                <div class="card text-center" style="width: 18rem;">
+                                        <img src="http://localhost:8000/${service.image || 'uploads/logo.png'}" class="card-img-top" alt="..." style="height: 200px;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${service.name}</h5>
+                                        <p class="card-text">${truncatedDescription}</p>
+                                        <p class="card-text">Category: ${service.category}</p>
+                                        <p class="card-text">Duration: ${service.duration}</p>
+                                        <p class="card-text">Price: $${service.price}</p>
+                                        <a href="/A_edit_service?id=${service.id}" class="btn btn-outline-primary">Edit</a>
+                                        <a href="/A_delete_service?id=${service.id}" class="btn btn-outline-danger">Delete</a>
+                                    </div>
+                                </div>
+                            `;
+
+                cardDiv.innerHTML = card;
+                servicesRow.appendChild(cardDiv);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+</script>

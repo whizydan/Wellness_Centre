@@ -1,0 +1,135 @@
+﻿@{
+    Layout = "_Customer";
+    ViewData["Title"] = "Services";
+    ViewData["page_title"] = "Services Detail";
+    ViewData["services"] = "active";
+}
+
+
+<style>
+    .card-img-top {
+        height: 200px; /* Adjust the height as needed */
+        object-fit: cover; /* Ensure the image covers the entire area */
+    }
+</style>
+
+<div class="row">
+    <div class="card">
+        <div class="card-header">
+            <img id="image" class="card-img" src="~/assets/img/logo.png" height="100">
+        </div>
+        <div class="card-body">
+            <p id="description">
+                
+            </p>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <form id="availability" method="get">
+        <div class="form-group">
+            <label for="name">Date:</label>
+            <input required name="date" type="date" class="form-control" id="date" placeholder="Date">
+        </div>
+        <div class="form-group">
+            <label for="duration">Duration:</label>
+            <select required class="form-control" id="duration" name="duration">
+                <option value="2">1 hour</option>
+                <option value="3">1hr 30 minutes</option>
+                <option value="4">2 hours</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="duration">Time:</label>
+            <input name="time" required type="time" class="form-control" id="time" placeholder="time">
+        </div><br>
+
+        <button type="submit" class="btn btn-primary">Check</button>
+    </form>
+</div>
+
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    function getParam(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        const results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+    const id = getParam('id');
+    const username = getCookieValue('user', 'id');
+
+    fetch(`http://localhost:8000/services/${id}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            data = data['reponse'];
+            const image = document.getElementById('image');
+            const description = document.getElementById('description');
+            if (data[0].image != "") {
+                image.src = "http://localhost:8000/" + data[0].image;
+            }
+            description.innerHTML = data[0].description;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+
+    document.getElementById('availability').addEventListener('submit', function (event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Get form data
+        const formData = new URLSearchParams(new FormData(this));
+
+        // Send POST request to /booking/id/date/duration/time
+        fetch(`http://localhost:8000/booking/${id}/${formData.get('date')}/${formData.get('duration')}/${formData.get('time')}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: formData
+        })
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                const item = data['reponse'];
+                if (item[0].date == formData.get('date') && item[0].time == formData.get('time')) {
+                    Swal.fire("No availability on selected times");
+                } else {
+                    const date = formData.get('date');
+                    const time = formData.get('time');
+                    const duration = formData.get('duration');
+                    const redirectUrl = `/Appointment?id=${id}&d=${date}&du=${duration}&t=${time}&u${username}`;
+                    window.location.href = redirectUrl;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors if any
+            });
+    });
+</script>
+

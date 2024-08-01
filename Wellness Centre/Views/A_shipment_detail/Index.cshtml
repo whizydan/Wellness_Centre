@@ -1,0 +1,102 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Orders";
+    ViewData["page_title"] = "Shipment details";
+    ViewData["pending_shipment"] = "active";
+}
+
+<style>
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
+
+<div class="row">
+    <div class="row">
+        <div class="row">
+            <div class="col" id="user"></div><div id="cost" class="col"></div>
+        </div>
+        <div class="row" id="shipment-form">
+            <!-- Form inputs will be filled dynamically here -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get the id from the page URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('id');
+
+    // Make a fetch request to localhost:8000/a_shipment_detail/id
+    fetch(`http://localhost:8000/a_shipment_detail/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            const shipment = data.reponse[0];
+
+            // Fill user and cost details
+            document.getElementById('user').innerText = `${shipment.name} x${shipment.quantity}`;
+            document.getElementById('cost').innerText = `RM ${shipment.price}`;
+
+            // Create form HTML with filled input values
+            const formHtml = `
+                    <form id="delivery-form" method="post">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Name</label>
+                            <input readonly value="${shipment.name}" id="username" type="text" class="form-control" required name="name">
+                            <div class="invalid-feedback">Please enter your name.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input readonly value="${shipment.phone}" id="phone" type="tel" class="form-control" required name="phone">
+                            <div class="invalid-feedback">Please enter your phone number.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <input readonly value="${shipment.address}" id="address" type="text" class="form-control" required name="address">
+                            <div class="invalid-feedback">Please enter your address.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="receipt" class="form-label">Receipt</label>
+                            <img src="http://localhost:8000/${shipment.receipt}" readonly height="150" class="form-control img-top w-25">
+                            <div class="invalid-feedback">Please select your receipt.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <input type="submit" value="Delivered" class="form-control btn btn-outline-primary">
+                        </div>
+                    </form>
+                `;
+
+            // Add the form HTML to the shipment-form div
+            document.getElementById('shipment-form').innerHTML = formHtml;
+
+            // Add event listener for form submission
+            const deliveryForm = document.getElementById('delivery-form');
+            deliveryForm.addEventListener('submit', (event) => {
+                event.preventDefault(); // Prevent default form submission
+
+                // Make a fetch request to /delivered/id
+                fetch(`http://localhost:8000/delivered/${id}`, {
+                    method: 'GET'
+                })
+                .then(response => response.json())
+                    .then(response => {
+                        if (response['reponse'] == "0") {
+                            Swal.fire('Order marked as delivered successfully!');
+                            // You can redirect or perform any other action here
+                        } else {
+                            Swal.fire('Failed to mark order as delivered');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error marking order as delivered. Please try again.');
+                    });
+            });
+        })
+        .catch(error => console.error('Error:', error));
+</script>

@@ -1,0 +1,46 @@
+﻿@{
+    Layout = "_Admin";
+    ViewData["Title"] = "Bookings";
+    ViewData["completed_booking"] = "active";
+    ViewData["page_title"] = "Completed Booking";
+    ViewData["page"] = ViewData["title"];
+}
+
+<div class="row" id="orders-container">
+    <!-- Cards will be dynamically added here -->
+</div>
+
+<script>
+    // Make a fetch request to /A_pending_shipment
+    fetch('http://localhost:8000/A_completed_bookings')
+        .then(response => response.json())
+        .then(data => {
+            const orders = data.reponse;
+
+            // Get the container to append cards
+            const ordersContainer = document.getElementById('orders-container');
+            console.log(data);
+
+            // Loop through orders and create cards
+            orders.forEach(order => {
+                const cardHtml = `
+                                <div class="card mb-3" style="max-width: 540px;">
+                                    <div class="row g-0">
+                                        <div class="col-md-4">
+                                            <img src="http://localhost:8000/${order.image}" class="img-fluid rounded-start" alt="...">
+                                        </div>
+                                        <div class="col-md-8">
+                                            <div class="card-body">
+                                                <h5 class="card-title">Order ID: ${order.id[0]}</h5>
+                                                <p class="card-text">Sevice: ${order.service}, Duration: ${order.duration}, Price: $${order.price}</p>
+                                                    <p class="card-text">Date: ${order.date} - ${order.time}</p>
+                                                <p class="card-text">Customer: ${order.username}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                ordersContainer.innerHTML += cardHtml;
+            });
+        })
+        .catch(error => console.error('Error:', error));
+</script>

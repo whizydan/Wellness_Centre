@@ -1,0 +1,205 @@
+﻿<script>
+    function getLogin(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    if (getLogin('user', "id") == "" || getLogin('user', "id") == null) {
+        window.location.href = "/Login";
+    }
+</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+    <meta name="description" content="Wellness app & spa">
+    <meta name="keywords" content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern,  html5, responsive">
+    <meta name="author" content="Kerberos - whizydan">
+    <meta name="robots" content="noindex, nofollow">
+    <title>@ViewData["title"] - Welness App</title>
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.png">
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/animate.css">
+    <link rel="stylesheet" href="assets/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="assets/plugins/select2/css/select2.min.css">
+    <link rel="stylesheet" href="assets/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="assets/plugins/fontawesome/css/fontawesome.min.css">
+    <link rel="stylesheet" href="assets/plugins/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div id="global-loader">
+        <img src="assets/img/loading.gif" />
+    </div>
+
+    <div class="main-wrapper">
+
+        <div class="header">
+
+            <div class="header-left active">
+                <a href="/A_services" class="logo">
+                    <img src="assets/img/logo.png" alt="">
+                </a>
+                <a href="/A_services" class="logo-small">
+                    <img src="assets/img/logo-small.png" alt="">
+                </a>
+                <a id="toggle_btn" href="javascript:void(0);">
+                </a>
+            </div>
+
+            <a id="mobile_btn" class="mobile_btn" href="#sidebar">
+                <span class="bar-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </a>
+
+            <ul class="nav user-menu">
+
+
+                <li class="nav-item dropdown has-arrow main-drop">
+                    <a href="javascript:void(0);" class="dropdown-toggle nav-link userset" data-bs-toggle="dropdown">
+                        <span class="user-img">
+                            <img src="assets/img/logo-small.png" alt="">
+                            <span class="status online"></span>
+                        </span>
+                    </a>
+                    <div class="dropdown-menu menu-drop-user">
+                        <div class="profilename">
+                            <div class="profileset">
+                                <span class="user-img">
+                                    <img src="assets/img/logo-small.png" alt="">
+                                    <span class="status online"></span>
+                                </span>
+                                <div class="profilesets">
+                                    <h6>John Doe</h6>
+                                    <h5>Admin</h5>
+                                </div>
+                            </div>
+                            <hr class="m-0">
+                            <a class="dropdown-item" href="/Profile"> <i class="me-2" data-feather="user"></i> My Profile</a>
+                            <hr class="m-0">
+                            <a class="dropdown-item logout pb-0" href="/Logout"><img src="assets/img/icons/log-out.svg" class="me-2" alt="img">Logout</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+
+
+            <div class="dropdown mobile-user-menu">
+                <a href="javascript:void(0);" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-v"></i></a>
+                <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" href="/Profile">My Profile</a>
+                    <a class="dropdown-item" href="/Logout">Logout</a>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-inner slimscroll">
+                <div id="sidebar-menu" class="sidebar-menu">
+                    <ul>
+                        <li hidden>
+                            <a><img src="assets/img/icons/dashboard.svg" alt="img"><span> Dashboard</span> </a>
+                        </li>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"><img src="assets/img/icons/masseur.svg" alt="img"><span> Masseur</span> <span class="menu-arrow"></span></a>
+                            <ul>
+                                <li><a class="@ViewData["masseurs"]" href="/A_masseurs">Masseur List</a></li>
+                                <li><a class="@ViewData["a_masseur"]" href="/A_add_masseur">Add Masseur</a></li>
+                                <li hidden><a class="@ViewData["e_masseur"]" href="/A_edit_masseur">Edit Masseur</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"><img src="assets/img/icons/services.svg" alt="img"><span> Services</span> <span class="menu-arrow"></span></a>
+                            <ul>
+                                <li><a class="@ViewData["services"]" href="/A_services">Services List</a></li>
+                                <li><a class="@ViewData["a_services"]" href="/A_add_service">Add service</a></li>
+                                <li hidden><a class="@ViewData["e_services"]" href="/A_edit_service">edit service</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"><img src="assets/img/icons/calendars.svg" alt="img"><span> Schedule</span> <span class="menu-arrow"></span></a>
+                            <ul>
+                                <li><a class="@ViewData["schedule"]" href="/A_schedule">Schedule</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"><img src="assets/img/icons/quotation1.svg" alt="img"><span> Orders</span> <span class="menu-arrow"></span></a>
+                            <ul>
+                                <li><a class="@ViewData["pending_shipment"]" href="/A_pending_shipment">pending </a></li>
+                                <li><a class="@ViewData["completed_shipment"]" href="/A_completed_shipment">Completed</a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"><img src="assets/img/icons/transfer1.svg" alt="img"><span> Bookings</span> <span class="menu-arrow"></span></a>
+                            <ul>
+                                <li><a class="@ViewData["pending_booking"]" href="/A_pending_booking">Pending</a></li>
+                                <li><a class="@ViewData["completed_booking"]" href="/A_completed_booking">Completed </a></li>
+                            </ul>
+                        </li>
+                        <li class="submenu">
+                            <a href="javascript:void(0);"><img src="assets/img/icons/users1.svg" alt="img"><span> Customers</span> <span class="menu-arrow"></span></a>
+                            <ul>
+                                <li><a class="@ViewData["customers"]" href="/A_customers">Customer List</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-wrapper pagehead">
+            <div class="content">
+                <div role="main" class="main-wrapper">
+                    <div class="page-header">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <h3 class="page-title">@ViewData["page"]</h3>
+                                <ul class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="/A_services">Admin</a></li>
+                                    <li class="breadcrumb-item active">@ViewData["page_title"]</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            @RenderBody()
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="assets/js/jquery-3.6.0.min.js"></script>
+    <script src="assets/js/feather.min.js"></script>
+    <script src="assets/js/jquery.slimscroll.min.js"></script>
+    <script src="assets/js/jquery.dataTables.min.js"></script>
+    <script src="assets/js/dataTables.bootstrap4.min.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/plugins/select2/js/select2.min.js"></script>
+    <script src="assets/plugins/sweetalert/sweetalert2.all.min.js"></script>
+    <script src="assets/plugins/sweetalert/sweetalerts.min.js"></script>
+    <script src="assets/js/moment.min.js"></script>
+    <script src="assets/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

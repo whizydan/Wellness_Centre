@@ -1,0 +1,125 @@
+﻿@{
+    Layout = "_Customer";
+    ViewData["Title"] = "Customer";
+    ViewData["page_title"] = "Order details";
+}
+
+<div class="col-md-9">
+    <div class="row">
+        <div id="product" class="col"> </div><div class="col" id="price"></div>
+    </div>
+    <div class="row">
+        <div class="col"></div><div class="col"><h6 id="totalText2"></h6></div>
+    </div>
+    <div class="row">
+        <form id="orderForm" method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="username" class="form-label">Name</label>
+                <input id="username" type="text" class="form-control" required name="name">
+                <div class="invalid-feedback">Please enter your name.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Phone</label>
+                <input id="phone" type="tel" class="form-control" required name="phone">
+                <div class="invalid-feedback">Please enter your phone number.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label">address</label>
+                <input id="address" type="text" class="form-control" required name="address">
+                <div class="invalid-feedback">Please enter your address.</div>
+            </div>
+
+            <div class="mb-3">
+                <label for="file" class="form-label">receipt</label>
+                <input id="file" type="file" class="form-control" required name="picture">
+                <div class="invalid-feedback">Please select your receipt.</div>
+            </div>
+
+            <div class="mb-3">
+                <input type="submit" class="form-control btn btn-outline-primary">
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    const phone = document.getElementById('phone');
+    const username = document.getElementById('username');
+    const address = document.getElementById('address');
+    const userId = getCookieValue('user','id');
+    const product = document.getElementById('product');
+    const price = document.getElementById('price');
+    const totalText2 = document.getElementById('totalText2');
+
+    phone.value = getCookieValue('user', 'phone');
+    username.value= getCookieValue('user', 'username');
+    address.value = getCookieValue('user', 'address');
+
+    fetch(`http://localhost:8000/checkout/${userId}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+            const item = data['reponse'][0];
+            price.innerHTML = "RM " + item.price[0] * item.qty;
+            product.innerHTML = item.name;
+
+            totalText2.innerHTML = "Total: RM " + item.price[0] * item.qty;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+
+
+    const orderForm = document.getElementById('orderForm');
+
+    orderForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent the default form submission
+
+        // Collect form data
+        const formData = new FormData(orderForm);
+
+        fetch(`http://localhost:8000/checkout/${userId}`, {
+            method: 'POST',
+            body: formData,
+        })
+            .then(response => {
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+                if (data['reponse'] == "0") {
+                    Swal.fire('Checkout successfull');
+                    window.location.href = '/Cart';
+                } else {
+                    Swal.fire("An error occurred");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors if any
+            });
+    });
+</script>

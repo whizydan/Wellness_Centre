@@ -1,0 +1,82 @@
+﻿@{
+    Layout = "_Masseur";
+    ViewData["Title"] = "Revenue";
+    ViewData["page_title"] = "Revenue";
+    ViewData["revenue"] = "active";
+}
+
+<h4>My Revenue</h4>
+<div class="row card card-body">
+    <table class="table datanew dataTable no-footer" id="DataTables_Table_0" role="grid" aria-describedby="DataTables_Table_0_info">
+        <thead>
+            <tr role="row">
+                <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Qty: activate to sort column ascending" style="width: 49.8047px;">ID</th>
+                <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Created By: activate to sort column ascending" style="width: 121.543px;">Revenue</th>
+                <th class="sorting" tabindex="0" aria-controls="DataTables_Table_0" rowspan="1" colspan="1" aria-label="Action: activate to sort column ascending" style="width: 135.684px;">Date</th>
+            </tr>
+        </thead>
+        <tbody id="dataTableBody">
+            
+        </tbody>
+    </table>
+</div>
+
+
+<script>
+    function getCookieValue(cookieName, fieldName) {
+        // Get the cookie value by name
+        const cookieString = document.cookie;
+        const cookies = cookieString.split('; ');
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].split('=');
+            if (cookie[0] === cookieName) {
+                const cookieData = JSON.parse(decodeURIComponent(cookie[1]));
+                return cookieData[fieldName];
+            }
+        }
+
+        return null; // Return null if cookie or field not found
+    }
+
+    const masseurId = getCookieValue("user", "id");
+
+    fetch(`http://localhost:8000/m_schedule/${masseurId}`, {
+        method: 'GET'
+    })
+        .then(response => {
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+
+            const tableBody = document.getElementById('dataTableBody');
+
+            // Ensure that the table body exists before populating
+            if (tableBody) {
+                // Loop through the data and create table rows
+                data.reponse.forEach(appointment => {
+                    const row = `
+                                    <tr class="odd">
+                    <td class="sorting_1">
+                        ${appointment.id[0]}
+                    </td>
+                    <td class="productimgname">
+                        ${appointment.price  * 0.4}
+                    </td>
+                    <td>${appointment.date}</td>
+                </tr>
+                                `;
+
+                    tableBody.innerHTML += row;
+                });
+            } else {
+                console.error('Table body not found.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle errors if any
+        });
+
+</script>
